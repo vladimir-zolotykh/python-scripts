@@ -56,6 +56,7 @@ if __name__ == "__main__":
     print options.email
     print options.pwd
     print options.smtpserver
+    print options.smtpserverport
     # smtpserver = initialize_smtp_server(options.stmpserver,
     #         options.smtpserverport, options.email, options.pwd)
 
