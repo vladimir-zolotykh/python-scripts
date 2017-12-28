@@ -54,6 +54,7 @@ if __name__ == "__main__":
             parser.error("Must provide both an email and a password")
 
     print options.email
+    print options.pwd
     print options.smtpserver
     # smtpserver = initialize_smtp_server(options.stmpserver,
     #         options.smtpserverport, options.email, options.pwd)
