@@ -17,7 +17,7 @@ select_target
 
 target_list = ["Target1", "Target2", "Target3"]
 
-with tempfile.NamedTemporaryFile() as temp:
+with tempfile.NamedTemporaryFile(mode='w+b') as temp:
     temp.write(select_target_sh_func % ' '.join(map(lambda s : '\"%s\"' % str(s),target_list)))
     temp.flush()
     # bash: /var/folders/jm/4j4mq_w52bx2l5qwg4gt44580000gn/T/tmp00laDV: Permission denied
