@@ -4,13 +4,13 @@ import os
 
 def pselect(choices):
     """Ask a user to select one of the enumerated choices. Return the selection."""
-    enumerated_choices = dict((i, f) for i, f in enumerate(f for f in choices))
-    str_choices=["{: >3} {:<}".format(k,v) for k,v in sorted(enumerated_choices.items())]
+    dict2 = dict((i, f) for i, f in enumerate(f for f in choices))
+    row=["{: >3} {:<}".format(k,v) for k,v in sorted(dict2.items())]
     choice = None
     while choice is None:
-        for a, b, c in zip(str_choices[::3], str_choices[1::3], str_choices[2::3]):
+        for a, b, c in zip(row[::3], row[1::3], row[2::3]):
             print '{:<30}{:<30}{:<}'.format(a, b, c)
-        choice = enumerated_choices.get(int(raw_input("Selection? ")))
+        choice = dict2.get(int(raw_input("Selection? ")))
         if not choice:
             print 'Please make a valid selection'
         else:
