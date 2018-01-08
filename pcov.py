@@ -18,6 +18,16 @@ class Cov0:
     
 class Cov(Cov0) :
     def __init__(self, cwd):
+        self.COV_BIN = "/opt/cov-analysis-linux-8.5.0/bin"  # VBox
+        if os.path.isdir("opt/cov-analysis-linux64-8.5.0/bin"):
+            self.COV_BIN ="opt/cov-analysis-linux64-8.5.0/bin"
+        self.COV_HTMLDIR=os.path.join(cwd,"/coverity/report")
+
+        # On VBox /home partition is too small and we have to use the larger / partion
+        # /coverity/report has to be created manually beforehand , and given ownership visteon:visteon
+
+        if os.path.isdir("/coverity/report"):
+            self.COV_HTMLDIR="/coverity/report"
         self.COV_INTDIR=os.path.join(cwd, "/coverity/intdir")
         self.COV_HTMLDIR=os.path.join(cwd, "/coverity/report")
         self.BUNNY_BIN=os.path.join(cwd, "/Tools/Bunny/Bunny/bin")
