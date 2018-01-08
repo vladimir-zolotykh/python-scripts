@@ -36,6 +36,8 @@ class Cov(Cov0) :
         self.BUNNY_BIN=os.path.join(cwd, "/Tools/Bunny/Bunny/bin")
         #COV_CA_CONF=$COV_BIN/visteon_Ruleset_v4_0.json
         self.COV_CA_CONF=os.path.join(self.COV_BIN, "/visteon_Ruleset_v4_0.json")
+    def get_release(self, url):
+        
     def clean_space(self):
         super(Cov).clean0('rm -rf ProductSpace/* InterSpace/*')
     def clean_intdir(self):
