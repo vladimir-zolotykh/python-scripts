@@ -1,6 +1,9 @@
 import os
 
 import subprocess
+import sys
+
+from optparse import OptionParser
 
 class Cov0:
     COV_INTDIR=""
@@ -63,3 +66,43 @@ if __name__ == "__main__" :
     cwd = os.getcwd()
 
     Cov2 = Cov(cwd)
+    usage = """
+    Usage: %prog -g <RELEASE_URI>
+                 -z
+                 -[bB]
+                 -f
+    """
+    parser = OptionParser(usage=usage)
+    parser.add_option("-g", dest="release_url", action="store",
+                      help="Release (sources.zip) url")
+    parser.add_option("-z", action="store_true", dest="clean_build",
+                      help="Clean all intermediate files")
+    parser.add_option("-b", dest="build_only",
+                      help="Do Coverity build only")
+    parser.add_option("-B", dest="build_only", action="store_false",
+                      help="Do full Coverity run (build, analyze, format errors)")
+    parser.add_option("-a", dest="analyze_only", action="store_true",
+                      help="Do Coverity analyze only")
+    parser.add_option("-f", dest="format_only", action="store_true",
+                      help="Format errors only")
+
+    options, args = parser.parse_args()
+
+    if options.release_url :
+        Cov2.get_release(options.release_url)
+    if options.clean_build and not options.release_url:
+        Cov2.clean()
+    if options.build_only:
+        Cov2.build()
+    else:
+        Cov2.build()
+        Cov2.analyze()
+        Cov2.format_errors()
+        sys.exit(0)
+
+    if options.anlyze_only:
+        Cov2.analyze()
+    if options.format_only:
+        Cov2.format_errors()
+
+
