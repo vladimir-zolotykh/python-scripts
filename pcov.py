@@ -6,13 +6,31 @@ import re
 
 from optparse import OptionParser
 
-class Cov0:
+def pselect(choices):
+    """Ask a user to select one of the enumerated choices. Return the selection."""
+    dict2 = dict((i, f) for i, f in enumerate(f for f in choices))
+    row=["{: >3} {:<}".format(k,v) for k,v in sorted(dict2.items())]
+    choice = None
+    while choice is None:
+        for a, b, c in zip(row[::3], row[1::3], row[2::3]):
+            print '{:<30}{:<30}{:<}'.format(a, b, c)
+        choice = dict2.get(int(raw_input("Selection? ")))
+        if not choice:
+            print 'Please make a valid selection'
+        else:
+            print 'You selected {:s}'.format(choice)
+
+    return (choice)
+
+class Cov0(object):
     COV_INTDIR=""
     COV_HTMLDIR=""
-    BUILD_CMD=""
+    BLD_TARGET=""
+    BLD_VARIANT=""
+    BUILD_CMD="$BUNNY_BIN/BunnyBuild $BLD_TARGET $BLD_VARIANT"
     COV_CA_COND=""
     BUNNY_BIN=""
-    COV_BIN='/opt/cov-analysis-linux-8.5.0/bin'
+    COV_BIN=""
     def exec_cmd (self, cmd):
         ret = subprocess.call(cmd, shell=True)
         return (ret)
@@ -22,9 +40,10 @@ class Cov0:
     
 class Cov(Cov0) :
     def __init__(self, cwd):
+        self.cwd = cwd
         self.COV_BIN = "/opt/cov-analysis-linux-8.5.0/bin"  # VBox
-        if os.path.isdir("opt/cov-analysis-linux64-8.5.0/bin"):
-            self.COV_BIN ="opt/cov-analysis-linux64-8.5.0/bin"
+        if os.path.isdir("/opt/cov-analysis-linux64-8.5.0/bin"):
+            self.COV_BIN ="/opt/cov-analysis-linux64-8.5.0/bin"
         self.COV_HTMLDIR=os.path.join(cwd,"/coverity/report")
 
         # On VBox /home partition is too small and we have to use the larger / partion
@@ -45,14 +64,24 @@ class Cov(Cov0) :
                 release_dir = release_dir.group(1)
                 if super(Cov).exec_cmd("7z -o{:s} {:s}".format(release_dir, release7z)) == 0:
                     os.chdir(release_dir)
-                    super(Cov).exec_cmd("ln -s ~/Documents/Stash/pmt/MFA2/Coverity/cov-analyze.sh .")
+                    super(Cov).exec_cmd("ln -s ~/Documents/Stash/pmt/MFA2/Coverity/pcov.py .")
                 else:
                     print("7z command failed")
             else:
                 print('Wrong release name {:s} supplied.'.format(release7z))
         else:
             print('Curl command failed.')
-
+    def get_target(self):
+        target_list=["UICockpit.WIMService", "UICockpit.UIServerProcess", "DI.VipProxyProcess",
+                     "HMI.ClusterEntry", "HMI.ClusterHigh", "DI.IPCServer",
+                     "HMI.HMI_ASILOverlayProcess", "HMI.HUD", "DI.DIOnOffProcess"]
+        self.BLD_TARGET=pselect(target_list)
+    def get_variant(self):
+        delispace_dir=os.path.join(self.cwd, "/DeliSpace")
+        if not os.path.isdir(delispace_dir):
+            print('{:s}: doesn'' exist')
+        variant_list = [d for d in os.listdir(delispace_dir) if os.path.isdir(d)]
+        self.BLD_VARIANT=pselect(variant_list)
     def clean_space(self):
         super(Cov).clean0('rm -rf ProductSpace/* InterSpace/*')
     def clean_intdir(self):
@@ -65,6 +94,8 @@ class Cov(Cov0) :
         self.clean_htmldir()
 
     def build(self):
+        self.BUILD_CMD = '{:s}/BunnyBuild {:s} {:s}'\
+            .format(self.BUNNY_BIN, self.BLD_TARGET, self.BLD_VARIANT)
         cmd = '{:s}/cov-build --dir {:s} --preprocess-first {:s}'.format(self.COV_BIN, self.COV_INTDIR, self.BUILD_CMD)
         super(Cov,self).exec_cmd(cmd)
 
