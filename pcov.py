@@ -2,6 +2,7 @@ import os
 
 import subprocess
 import sys
+import re
 
 from optparse import OptionParser
 
@@ -37,7 +38,21 @@ class Cov(Cov0) :
         #COV_CA_CONF=$COV_BIN/visteon_Ruleset_v4_0.json
         self.COV_CA_CONF=os.path.join(self.COV_BIN, "/visteon_Ruleset_v4_0.json")
     def get_release(self, url):
-        
+        if super(Cov).exec_cmd('curl -0 {:s}'.format(url)) == 0:
+            release7z = os.path.basename(url)
+            release_dir = re.search('\.(Release-.*)_Sources\.7z$', release7z)
+            if release_dir:
+                release_dir = release_dir.group(1)
+                if super(Cov).exec_cmd("7z -o{:s} {:s}".format(release_dir, release7z)) == 0:
+                    os.chdir(release_dir)
+                    super(Cov).exec_cmd("ln -s ~/Documents/Stash/pmt/MFA2/Coverity/cov-analyze.sh .")
+                else:
+                    print("7z command failed")
+            else:
+                print('Wrong release name {:s} supplied.'.format(release7z))
+        else:
+            print('Curl command failed.')
+
     def clean_space(self):
         super(Cov).clean0('rm -rf ProductSpace/* InterSpace/*')
     def clean_intdir(self):
